@@ -12,6 +12,22 @@ import au.com.redmars.exceptions.IncorrectFileNameException;
 public class AppTest 
 {
     @Test
+    public void noArgumentsProvided()
+    {
+        String[] args = null;
+        boolean error = false;
+        try {
+            App.main(args);
+        } catch (IllegalArgumentException e) {
+            error = true;
+        } catch (IncorrectFileNameException e) {
+            
+        }
+        finally {
+            assertTrue("No command line arguments provided",error);
+        }
+    }
+    @Test
     public void wrongFileExtensionProvided()
     {
         String[] args=new String[1];
@@ -26,7 +42,7 @@ public class AppTest
         }
     }
     @Test
-    public void DNGFileExtensionProvided()
+    public void LowerDNGFileExtensionProvided()
     {
         String[] args=new String[1];
         args[0] = "img-2345.dng";
@@ -40,7 +56,35 @@ public class AppTest
         }
     }
     @Test
-    public void TIFFileExtensionProvided()
+    public void UpperDNGFileExtensionProvided()
+    {
+        String[] args=new String[1];
+        args[0] = "img-2345.DNG";
+        boolean wrongExt = false;
+        try {
+            App.main(args);
+        } catch (IncorrectFileNameException e) {
+            wrongExt = true;
+        } finally {
+            assertTrue("Incorrect Filename supplied",!wrongExt);
+        }
+    }
+    @Test
+    public void LowerTIFFileExtensionProvided()
+    {
+        String[] args=new String[1];
+        args[0] = "img-2345.tif";
+        boolean wrongExt = false;
+        try {
+            App.main(args);
+        } catch (IncorrectFileNameException e) {
+            wrongExt = true;
+        } finally {
+            assertTrue("Incorrect Filename supplied",!wrongExt);
+        }
+    }
+    @Test
+    public void UpperTIFFileExtensionProvided()
     {
         String[] args=new String[1];
         args[0] = "img-2345.TIF";
@@ -53,4 +97,5 @@ public class AppTest
             assertTrue("Incorrect Filename supplied",!wrongExt);
         }
     }
+
 }
