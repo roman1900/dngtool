@@ -23,8 +23,6 @@ public class App
         if (!filePath.toUpperCase().endsWith("DNG") & !filePath.toUpperCase().endsWith("TIF")) {
             throw new IncorrectFileNameException("dngtool follows strict DNG speficiation. File extension must be DNG or TIF");
         }
-        //TODO: determine relative vs absolute file paths
-        Path path = Paths.get(System.getProperty("user.dir"),filePath);
         byte[] rawDNGBytes = null;
         ImageHeader imageHeader;
         try {
@@ -52,9 +50,22 @@ public class App
 
             for(int i = 0; i < ifdEntryCount; ++i) {
                 int tag = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+2));
-                System.out.printf("Entry: %d TAG: %d \r\n",i+1,tag); 
+                int type = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr+2 , ptr+4));
+                int count = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr+4 , ptr+7));
+                
+                System.out.printf("Entry: %d TAG: %d Type: %d\r\n",i+1,tag,type); 
+                if(Tag.valueOfTag(tag)!=null)
+                    System.out.println(Tag.valueOfTag(tag));
+                else throw new Exception(String.format("Unknown TAG encountered: %d",tag));
+                if(Type.valueOfTag(type)!=null)
+                    System.out.println(Type.valueOfTag(type));
+                else throw new Exception(String.format("Unknown TAG encountered: %d",type));
+                System.out.println(count);
+                
                 ptr = ptr + 12;
             } 
+            long nextIFD=imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4));
+            System.out.printf("%d Next IFD location\r\n",nextIFD);
         } catch (Exception e) {
             System.out.printf("%s\r\n",e.getMessage());
         }
