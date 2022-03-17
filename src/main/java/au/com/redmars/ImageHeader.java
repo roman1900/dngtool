@@ -1,9 +1,12 @@
 package au.com.redmars;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class ImageHeader {
 
+    //TODO: Refactor using ByteOrder rahter than lsb boolean
     boolean lsb;
     String byteOrder;
     Integer tiffIndentifier;
@@ -32,4 +35,12 @@ public class ImageHeader {
         return lsb ? ByteUtils.lsbByteToInt(bytes) 
         : ByteUtils.msbByteToInt(bytes);
     }
+    public float getFloat(byte[] bytes) {
+        ByteOrder bo = lsb ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN ;
+        return ByteBuffer.wrap(bytes).order(bo).getFloat();
+    }
+	public Double getDouble(byte[] bytes) {
+		ByteOrder bo = lsb ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN ;
+        return ByteBuffer.wrap(bytes).order(bo).getDouble();
+	}
 }
