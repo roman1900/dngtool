@@ -3,7 +3,7 @@ package au.com.redmars;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Tag {
+public enum TagIdentifier {
     NewSubfileType(254),
     SubfileType(255),
     ImageWidth(256),
@@ -66,20 +66,20 @@ public enum Tag {
     NoiseProfile(51041),
     NewRawImageDigest(51111);
 
-    private static final Map<Integer, Tag> BY_VALUE = new HashMap<>();
+    private static final Map<Integer, TagIdentifier> BY_VALUE = new HashMap<>();
     
 
     public final Integer value;
 
     static {
-        for (Tag e: values()) {
+        for (TagIdentifier e: values()) {
             BY_VALUE.put(e.value, e);
         }
     }
-    private Tag(Integer value) {
+    private TagIdentifier(Integer value) {
         this.value = value;
     }
-    public static Tag valueOfTag(int value) {
+    public static TagIdentifier valueOfTag(int value) {
         return BY_VALUE.get(value);
     }
 }
