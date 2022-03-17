@@ -3,8 +3,6 @@ package au.com.redmars;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -54,8 +52,8 @@ public class App
                 int count = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr+4 , ptr+7));
                 
                 System.out.printf("Entry: %d TAG: %d Type: %d\r\n",i+1,tag,type); 
-                if(Tag.valueOfTag(tag)!=null)
-                    System.out.println(Tag.valueOfTag(tag));
+                if(TagIdentifier.valueOfTag(tag)!=null)
+                    System.out.println(TagIdentifier.valueOfTag(tag));
                 else throw new Exception(String.format("Unknown TAG encountered: %d",tag));
                 if(Type.valueOfTag(type)!=null)
                     System.out.println(Type.valueOfTag(type));
