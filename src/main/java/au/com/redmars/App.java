@@ -34,6 +34,7 @@ public class App
         }
         try {
             int ptr = 0;
+            long nextptr = 0;
             imageHeader = new ImageHeader(Arrays.copyOfRange(rawDNGBytes, 0, 8));
             System.out.println(imageHeader.byteOrder);
             System.out.println(imageHeader.tiffIndentifier);
@@ -42,30 +43,91 @@ public class App
                                             imageHeader.ifdOffset.intValue(),
                                             imageHeader.ifdOffset.intValue() + 2);
             ptr = imageHeader.ifdOffset.intValue() + 2;
-            int ifdEntryCount = imageHeader.lsb ? ByteUtils.lsbByteToInt(ifdEntryBytes) 
-                                : ByteUtils.msbByteToInt(ifdEntryBytes);
-            System.out.println(ifdEntryCount);
+            int ifdEntryCount = imageHeader.getInt(ifdEntryBytes);
+            System.out.printf("IFD 0 entry count: %d\r\n",ifdEntryCount);
 
             for(int i = 0; i < ifdEntryCount; ++i) {
-                int tag = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+2));
-                int type = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr+2 , ptr+4));
-                int count = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr+4 , ptr+7));
-                
-                System.out.printf("Entry: %d TAG: %d Type: %d\r\n",i+1,tag,type); 
-                if(TagIdentifier.valueOfTag(tag)!=null)
-                    System.out.println(TagIdentifier.valueOfTag(tag));
-                else throw new Exception(String.format("Unknown TAG encountered: %d",tag));
-                if(Type.valueOfTag(type)!=null)
-                    System.out.println(Type.valueOfTag(type));
-                else throw new Exception(String.format("Unknown TAG encountered: %d",type));
-                System.out.println(count);
-                
+                IFDEntry currentTag = new IFDEntry(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+12),imageHeader);
+                System.out.println(currentTag.toString());
+                if (currentTag.getIsValue()) {
+                    switch (currentTag.getFieldType()) {
+                        case BYTE:
+                            System.out.println(currentTag.getValue());
+                            break;
+                        case SHORT:
+                            System.out.println(imageHeader.getInt(currentTag.getValue()));
+                            break;
+                        case LONG:
+                            System.out.println(imageHeader.getLong(currentTag.getValue()));
+                            break;
+                        case UNDEFINED:
+                        case ASCII:
+                            System.out.println(new String(currentTag.getValue()));
+                            break;
+                        default:
+                            throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
+                    }
+                } else {
+                    switch(currentTag.getFieldType()) {
+                        case SHORT:
+                            System.out.println(Arrays.toString(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount())));
+                            break;
+                        case ASCII:
+                            System.out.println(new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
+                            break;
+                        default: 
+                            throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
+                    }
+                }
+                if (currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD)
+                {
+                   nextptr = imageHeader.getLong(currentTag.getValue());
+                }
                 ptr = ptr + 12;
             } 
             long nextIFD=imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4));
             System.out.printf("%d Next IFD location\r\n",nextIFD);
+
+            //Process EXIF IFD
+            ifdEntryBytes = Arrays.copyOfRange(rawDNGBytes, 
+                                            (int)nextptr,
+                                            (int)nextptr + 2);
+            ifdEntryCount = imageHeader.getInt(ifdEntryBytes);
+            System.out.printf("Exif IFD entry count: %d\r\n",ifdEntryCount);
+            ptr = (int)nextptr + 2;
+            for(int i = 0; i < ifdEntryCount; ++i) {
+                IFDEntry currentTag = new IFDEntry(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+12),imageHeader);
+                System.out.println(currentTag.toString());
+                if (currentTag.getIsValue()) {
+                    switch (currentTag.getFieldType()) {
+                        case BYTE:
+                            System.out.println(currentTag.getValue());
+                            break;
+                        case SHORT:
+                            System.out.println(imageHeader.getInt(currentTag.getValue()));
+                            break;
+                        case LONG:
+                            System.out.println(imageHeader.getLong(currentTag.getValue()));
+                            break;
+                        case UNDEFINED:
+                        case ASCII:
+                            System.out.println(new String(currentTag.getValue()));
+                            break;
+                        default:
+                            throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
+                    }
+                }
+                if (currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD)
+                {
+                   nextptr = imageHeader.getLong(currentTag.getValue());
+                }
+                ptr = ptr + 12;
+            } 
+            nextIFD=imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4));
+            System.out.printf("%d Next IFD location\r\n",nextIFD);
+
         } catch (Exception e) {
-            System.out.printf("%s\r\n",e.getMessage());
+            System.out.printf("File:%s Line:%d %s\r\n",e.getStackTrace()[0].getFileName(),e.getStackTrace()[0].getLineNumber(), e.getMessage());
         }
     }
 }
