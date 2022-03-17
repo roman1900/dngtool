@@ -52,7 +52,7 @@ public class App
                 if (currentTag.getIsValue()) {
                     switch (currentTag.getFieldType()) {
                         case BYTE:
-                            System.out.println(currentTag.getValue());
+                            System.out.println(Arrays.toString(currentTag.getValue()));
                             break;
                         case SHORT:
                             System.out.println(imageHeader.getInt(currentTag.getValue()));
@@ -68,9 +68,49 @@ public class App
                             throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
                     }
                 } else {
+                    int offset;
+                    Long[] values;
                     switch(currentTag.getFieldType()) {
+                        case BYTE:
                         case SHORT:
-                            System.out.println(Arrays.toString(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount())));
+                            byte[] subarray = Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount());
+                            if (subarray.length > 10) {
+                                System.out.printf("%s ... %s\r\n",
+                                Arrays.toString(Arrays.copyOfRange(subarray,0,5)),
+                                Arrays.toString(Arrays.copyOfRange(subarray,subarray.length-5,subarray.length)));   
+                            } 
+                            else {
+                                System.out.println(Arrays.toString(subarray));
+                            }
+                            break;
+                        case LONG:
+                            values = new Long[currentTag.getCount()];
+                            offset = currentTag.getOffset();
+                            for(int n = 0; n < values.length; ++n) {
+                                values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
+                                offset += 4;
+                            }
+                            if (values.length > 10) {
+                                System.out.printf("%s ... %s",
+                                    Arrays.toString(Arrays.copyOfRange(values,0,5)),
+                                    Arrays.toString(Arrays.copyOfRange(values,values.length-5,values.length)));     
+                            } else {
+                                System.out.println(Arrays.toString(values));
+                            }
+                            break;
+                        case RATIONAL:
+                        case SRATIONAL:
+                            values = new Long[currentTag.getCount()*2];
+                            offset = currentTag.getOffset();
+                            for(int n = 0; n < values.length; ++n) {
+                                values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
+                                offset += 4;
+                            }
+                            double[] result = new double[values.length/2];
+                            for(int e = 0; e < result.length; ++e) {
+                                result[e] = values[e*2] / (double)values[e*2+1];
+                            } 
+                            System.out.println(Arrays.toString(result));
                             break;
                         case ASCII:
                             System.out.println(new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
