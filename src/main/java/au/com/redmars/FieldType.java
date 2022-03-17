@@ -3,7 +3,7 @@ package au.com.redmars;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Type {
+public enum FieldType {
     BYTE(1),
     ASCII(2),
     SHORT(3),
@@ -17,20 +17,20 @@ public enum Type {
     FLOAT(11),
     DOUBLE(12);
     
-    private static final Map<Integer, Type> BY_VALUE = new HashMap<>();
+    private static final Map<Integer, FieldType> BY_VALUE = new HashMap<>();
     
 
     public final Integer value;
 
     static {
-        for (Type e: values()) {
+        for (FieldType e: values()) {
             BY_VALUE.put(e.value, e);
         }
     }
-    private Type(Integer value) {
+    private FieldType(Integer value) {
         this.value = value;
     }
-    public static Type valueOfTag(int value) {
+    public static FieldType valueOfTag(int value) {
         return BY_VALUE.get(value);
     }
 }
