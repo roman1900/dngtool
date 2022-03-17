@@ -4,7 +4,7 @@ public class ByteUtils {
     public static long lsbByteToLong(byte[] bytes) {
         long result = 0;
         for (int i = 0; i < bytes.length; ++i) {
-            result += bytes[i] << (i * 8);
+            result += (bytes[i] & 0xffL) << (i * 8);
         }
         return result;
     }
