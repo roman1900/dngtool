@@ -69,19 +69,11 @@ public class App
                     }
                 } else {
                     int offset;
-                    Long[] values;
+                    Object[] values;
                     switch(currentTag.getFieldType()) {
                         case BYTE:
                         case SHORT:
-                            byte[] subarray = Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount());
-                            if (subarray.length > 10) {
-                                System.out.printf("%s ... %s\r\n",
-                                Arrays.toString(Arrays.copyOfRange(subarray,0,5)),
-                                Arrays.toString(Arrays.copyOfRange(subarray,subarray.length-5,subarray.length)));   
-                            } 
-                            else {
-                                System.out.println(Arrays.toString(subarray));
-                            }
+                            System.out.println(StringUtils.formatObjectArray(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount()), 10));
                             break;
                         case LONG:
                             values = new Long[currentTag.getCount()];
@@ -90,13 +82,7 @@ public class App
                                 values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
                                 offset += 4;
                             }
-                            if (values.length > 10) {
-                                System.out.printf("%s ... %s",
-                                    Arrays.toString(Arrays.copyOfRange(values,0,5)),
-                                    Arrays.toString(Arrays.copyOfRange(values,values.length-5,values.length)));     
-                            } else {
-                                System.out.println(Arrays.toString(values));
-                            }
+                            System.out.println(StringUtils.formatObjectArray(values,10));
                             break;
                         case RATIONAL:
                         case SRATIONAL:
@@ -108,9 +94,27 @@ public class App
                             }
                             double[] result = new double[values.length/2];
                             for(int e = 0; e < result.length; ++e) {
-                                result[e] = values[e*2] / (double)values[e*2+1];
+                                result[e] = ((Long)values[e*2]).doubleValue() / ((Long)values[e*2+1]).doubleValue();
                             } 
-                            System.out.println(Arrays.toString(result));
+                            System.out.println(StringUtils.formatObjectArray(result,10));
+                            break;
+                        case FLOAT:
+                            values = new Float[currentTag.getCount()];
+                            offset = currentTag.getOffset();
+                            for(int n = 0; n < values.length; ++n) {
+                                values[n] = imageHeader.getFloat(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
+                                offset += 4;
+                            }
+                            System.out.println(StringUtils.formatObjectArray(values,10));
+                            break;
+                        case DOUBLE:
+                            values = new Double[currentTag.getCount()];
+                            offset = currentTag.getOffset();
+                            for(int n = 0; n < values.length; ++n) {
+                                values[n] = imageHeader.getDouble(Arrays.copyOfRange(rawDNGBytes,offset,offset + 8));
+                                offset += 8;
+                            }
+                            System.out.println(StringUtils.formatObjectArray(values,10));
                             break;
                         case ASCII:
                             System.out.println(new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
