@@ -6,7 +6,7 @@ public class StringUtils {
 
 	public static String formatObjectArray(byte[] bytes,int limit) {
         if (bytes.length > limit) {
-            return String.format("%s ... %s\r\n",
+            return String.format("%s ... %s",
             Arrays.toString(Arrays.copyOfRange(bytes,0,limit / 2)),
             Arrays.toString(Arrays.copyOfRange(bytes,bytes.length-limit / 2,bytes.length)));   
         } 
@@ -16,7 +16,7 @@ public class StringUtils {
     }
 	public static String formatObjectArray(Object[] values,int limit) {
         if (values.length > limit) {
-            return String.format("%s ... %s\r\n",
+            return String.format("%s ... %s",
             Arrays.toString(Arrays.copyOfRange(values,0,limit / 2)),
             Arrays.toString(Arrays.copyOfRange(values,values.length-limit / 2,values.length)));   
         } 
@@ -26,7 +26,7 @@ public class StringUtils {
     }
 	public static String formatObjectArray(double[] values,int limit) {
         if (values.length > limit) {
-            return String.format("%s ... %s\r\n",
+            return String.format("%s ... %s",
             Arrays.toString(Arrays.copyOfRange(values,0,limit / 2)),
             Arrays.toString(Arrays.copyOfRange(values,values.length-limit / 2,values.length)));   
         } 
