@@ -119,6 +119,18 @@ public class DNG {
                         }
                     }
                 }
+                if (currentTag.getTagIdentifier() == TagIdentifier.DNGPrivateData) {
+                    Boolean foundnul = false;
+                    int o = currentTag.getOffset();
+                    while (!foundnul) {
+                        if (rawDNGBytes[o] == 0) foundnul = true;
+                        else o++;
+                    }
+                    System.out.printf("%d %s\r\n",currentTag.getOffset(),new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),o+1)));
+                }
+                if (currentTag.getTagIdentifier() == TagIdentifier.XMP) {
+                    System.out.printf("%s\r\n",new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount())));
+                }
                 ptr = ptr + 12;
             } 
             if (imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)) > 0) {
