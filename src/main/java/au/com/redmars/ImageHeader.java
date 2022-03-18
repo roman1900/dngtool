@@ -20,18 +20,18 @@ public class ImageHeader {
             default:
                 throw new Exception(String.format("Not a valid DNG file: Unknown byte order encountered %s",new String(new byte[]{rawHeader[0],rawHeader[1]})));
         }
-        tiffIndentifier = ByteBuffer.wrap(new byte[] {rawHeader[2],rawHeader[3]}).order(byteOrder).getInt();
+        tiffIndentifier = (int) ByteBuffer.wrap(new byte[] {rawHeader[2],rawHeader[3]}).order(byteOrder).getShort();
         // DNG allows for 64bit files. This is identified by 43 instead of 42.
         if (tiffIndentifier != 42 && tiffIndentifier != 43) {
             throw new Exception(String.format("Incorrect TIFF identifier: %d",tiffIndentifier)); 
         } 
-        ifdOffset = getLong(Arrays.copyOfRange(rawHeader, 4, 7));
+        ifdOffset = getLong(Arrays.copyOfRange(rawHeader, 4, 8));
     }
-    public long getLong(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).order(byteOrder).getLong();
+    public Long getLong(byte[] bytes) {
+        return ((Integer)ByteBuffer.wrap(bytes).order(byteOrder).getInt()).longValue();
     }
     public int getInt(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).order(byteOrder).getInt();
+        return ByteBuffer.wrap(bytes).order(byteOrder).getChar();
     }
     public float getFloat(byte[] bytes) {
         return ByteBuffer.wrap(bytes).order(byteOrder).getFloat();
