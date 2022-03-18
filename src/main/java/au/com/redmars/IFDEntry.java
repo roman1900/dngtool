@@ -51,7 +51,7 @@ public class IFDEntry {
 	}
 
 	public String toString() {
-		return String.format("Name: %s Id: %d Field Type: %s Field Type Id: %d contains %d %s",tagIdentifier.name(),tagIdentifier.value,fieldType.name(),fieldType.value,count,isValue ? count >1 ? "values": "value" : String.format("%s at Offset %d",count>1 ? "values":"value",offset));
+		return String.format("%25s\t%10s\tCount: %5d Value/s: ",tagIdentifier.name(),fieldType.name(),count);
 	}
 
 	public IFDEntry(byte[] rawTag,ImageHeader imageHeader) throws Exception{
@@ -65,7 +65,7 @@ public class IFDEntry {
 			fieldType = FieldType.valueOfTag(type);
         else throw new Exception(String.format("Unknown Type encountered: %d",type));
         
-		count = imageHeader.getInt(Arrays.copyOfRange(rawTag, 4 , 8));
+		count = imageHeader.getLong(Arrays.copyOfRange(rawTag, 4 , 8)).intValue();
         
 
 		switch (fieldType) {
@@ -97,7 +97,7 @@ public class IFDEntry {
         if (isValue) 
 			value = Arrays.copyOfRange(rawTag, 8 , 12);
         else
-            offset =  imageHeader.getInt(Arrays.copyOfRange(rawTag, 8 , 12));
+            offset =  imageHeader.getLong(Arrays.copyOfRange(rawTag, 8 , 12)).intValue();
                 
 	}
 
