@@ -47,7 +47,7 @@ public class DNG {
                     switch(currentTag.getFieldType()) {
                         case BYTE:
                         case SHORT:
-                            System.out.printf("%s%s\r\n",prefix,StringUtils.formatObjectArray(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount()), 10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount()), 10));
                             break;
                         case LONG:
                             values = new Long[currentTag.getCount()];
@@ -56,7 +56,7 @@ public class DNG {
                                 values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
                                 offset += 4;
                             }
-                            System.out.printf("%s%s\r\n",prefix,StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
                             break;
                         case RATIONAL:
                         case SRATIONAL:
@@ -70,7 +70,7 @@ public class DNG {
                             for(int e = 0; e < result.length; ++e) {
                                 result[e] = ((Long)values[e*2]).doubleValue() / ((Long)values[e*2+1]).doubleValue();
                             } 
-                            System.out.printf("%s%s\r\n",prefix,StringUtils.formatObjectArray(result,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(result,10));
                             break;
                         case FLOAT:
                             values = new Float[currentTag.getCount()];
@@ -79,7 +79,7 @@ public class DNG {
                                 values[n] = imageHeader.getFloat(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
                                 offset += 4;
                             }
-                            System.out.printf("%s%s\r\n",prefix,StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
                             break;
                         case DOUBLE:
                             values = new Double[currentTag.getCount()];
@@ -88,13 +88,13 @@ public class DNG {
                                 values[n] = imageHeader.getDouble(Arrays.copyOfRange(rawDNGBytes,offset,offset + 8));
                                 offset += 8;
                             }
-                            System.out.printf("%s%s\r\n",prefix,StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
                             break;
                         case UNDEFINED:
-                            System.out.printf("%sUNDEFINED DATA TAG SPECIFIC\r\n",prefix);
+                            System.out.printf("UNDEFINED DATA TAG SPECIFIC\r\n");
                             break;
                         case ASCII:
-                            System.out.printf("%s%s\r\n",prefix,new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
+                            System.out.printf("%s\r\n",new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
                             break;
                         default: 
                             throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
@@ -142,7 +142,5 @@ public class DNG {
 	DNG(byte[] rawDNGBytes) throws Exception{
         this.rawDNGBytes = rawDNGBytes;
         imageHeader = new ImageHeader(Arrays.copyOfRange(rawDNGBytes, 0, 8));
-        System.out.println(imageHeader.tiffIndentifier);
-        System.out.println(imageHeader.ifdOffset);
 	}
 }

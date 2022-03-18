@@ -11,7 +11,6 @@ public class App
 {
     public static void main( String[] args ) throws IncorrectFileNameException,IllegalArgumentException
     {
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         if (Objects.isNull(args) || args.length <=0)
         {
             throw new IllegalArgumentException("No arguments provided");
@@ -36,7 +35,6 @@ public class App
             dng.dumpIFDs(null,"");
             
         } catch (Exception e) {
-            e.printStackTrace();
             System.out.printf("File:%s Line:%d %s\r\n",e.getStackTrace()[0].getFileName(),e.getStackTrace()[0].getLineNumber(), e.getMessage());
         }
     }
