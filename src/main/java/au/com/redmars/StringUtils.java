@@ -1,8 +1,21 @@
 package au.com.redmars;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class StringUtils {
+
+    public static <T> String formatObjectList(List<T> items,int limit) {
+        if (items.size() > limit) {
+            return String.format("%s ... %s",
+                items.subList(0, 5).toString(),
+                items.subList(items.size()-5,items.size())
+            );
+        } 
+        else {
+            return items.toString();
+        }
+    }
 
 	public static String formatObjectArray(byte[] bytes,int limit) {
         if (bytes.length > limit) {
