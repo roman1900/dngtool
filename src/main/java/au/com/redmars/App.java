@@ -35,7 +35,8 @@ public class App
             dng.dumpIFDs(null,"");
             
         } catch (Exception e) {
-            System.out.printf("File:%s Line:%d %s\r\n",e.getStackTrace()[0].getFileName(),e.getStackTrace()[0].getLineNumber(), e.getMessage());
+            System.out.println();
+            e.printStackTrace();
         }
     }
 }
