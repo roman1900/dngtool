@@ -1,8 +1,7 @@
 package au.com.redmars;
 
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 
 public class DNG {
 	private ImageHeader imageHeader;
@@ -11,90 +10,60 @@ public class DNG {
 	public void dumpIFDs(Integer offset,String prefix) throws Exception{
             
 			int ptr = 0;
-            List<Integer> subIFDs = new ArrayList<>();
             if (offset == null) {
                 offset = imageHeader.ifdOffset.intValue();
             } 
 			ptr = offset + 2;
-            int ifdEntryCount = imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, offset, offset + 2));
+            int ifdEntryCount = ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, offset, offset + 2)).order(imageHeader.byteOrder).getChar();
             
             System.out.printf("%sIFD entry count: %d\r\n",prefix,ifdEntryCount);
 
             for(int i = 0; i < ifdEntryCount; ++i) {
-                IFDEntry currentTag = new IFDEntry(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+12),imageHeader);
+                IFDEntry currentTag = new IFDEntry(rawDNGBytes,ptr,imageHeader.byteOrder);
                 System.out.printf("%s%s ",prefix,currentTag.toString());
+                //TODO: This is no longer required as getValues will return the value/s without need for isValue checking
                 if (currentTag.getIsValue()) {
                     switch (currentTag.getFieldType()) {
                         case BYTE:
-                            System.out.println(Arrays.toString(currentTag.getValue()));
+                            System.out.println((new ByteIFD(currentTag)).getValues());
                             break;
                         case SHORT:
-                            System.out.println(imageHeader.getInt(currentTag.getValue()));
+                            System.out.println((new ShortIFD(currentTag)).getValues());
                             break;
                         case LONG:
-                            System.out.println(imageHeader.getLong(currentTag.getValue()));
+                            System.out.println((new LongIFD(currentTag)).getValues());
                             break;
                         case UNDEFINED:
                         case ASCII:
-                            System.out.println(new String(currentTag.getValue()));
+                            System.out.println((new AsciiIFD(currentTag)).getValues());
                             break;
                         default:
                             throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
                     }
                 } else {
-                    //int offset;
-                    Object[] values;
                     switch(currentTag.getFieldType()) {
                         case BYTE:
                         case SHORT:
                             System.out.printf("%s\r\n",StringUtils.formatObjectArray(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount()), 10));
                             break;
                         case LONG:
-                            values = new Long[currentTag.getCount()];
-                            offset = currentTag.getOffset();
-                            for(int n = 0; n < values.length; ++n) {
-                                values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
-                                offset += 4;
-                            }
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new LongIFD(currentTag)).getValues().toArray(new Long[0]),10));
                             break;
                         case RATIONAL:
                         case SRATIONAL:
-                            values = new Long[currentTag.getCount()*2];
-                            offset = currentTag.getOffset();
-                            for(int n = 0; n < values.length; ++n) {
-                                values[n] = imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
-                                offset += 4;
-                            }
-                            double[] result = new double[values.length/2];
-                            for(int e = 0; e < result.length; ++e) {
-                                result[e] = ((Long)values[e*2]).doubleValue() / ((Long)values[e*2+1]).doubleValue();
-                            } 
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(result,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new RationalIFD(currentTag)).getValues().toArray(new Double[0]),10));
                             break;
                         case FLOAT:
-                            values = new Float[currentTag.getCount()];
-                            offset = currentTag.getOffset();
-                            for(int n = 0; n < values.length; ++n) {
-                                values[n] = imageHeader.getFloat(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4));
-                                offset += 4;
-                            }
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new FloatIFD(currentTag)).getValues().toArray(new Float[0]),10));
                             break;
                         case DOUBLE:
-                            values = new Double[currentTag.getCount()];
-                            offset = currentTag.getOffset();
-                            for(int n = 0; n < values.length; ++n) {
-                                values[n] = imageHeader.getDouble(Arrays.copyOfRange(rawDNGBytes,offset,offset + 8));
-                                offset += 8;
-                            }
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(values,10));
+                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new DoubleIFD(currentTag)).getValues().toArray(new Double[0]),10));
                             break;
                         case UNDEFINED:
                             System.out.printf("UNDEFINED DATA TAG SPECIFIC\r\n");
                             break;
                         case ASCII:
-                            System.out.printf("%s\r\n",new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() + currentTag.getCount())));
+                            System.out.println((new AsciiIFD(currentTag)).getValues());
                             break;
                         default: 
                             throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
@@ -103,18 +72,17 @@ public class DNG {
                 if (currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD)
                 {
                     System.out.printf("%s\tExif IFD\r\n",prefix);
-                    dumpIFDs(imageHeader.getLong(currentTag.getValue()).intValue(),String.format("%s\t",prefix));
+                    dumpIFDs((new LongIFD(currentTag)).getValues().get(0).intValue(),String.format("%s\t",prefix));
                 }
                 if (currentTag.getTagIdentifier() == TagIdentifier.SubIFDs) {
                     if (currentTag.getIsValue()) {
-                        dumpIFDs(imageHeader.getLong(currentTag.getValue()).intValue(), String.format("%s\t",prefix));
+                        dumpIFDs((new LongIFD(currentTag)).getValues().get(0).intValue(), String.format("%s\t",prefix));
                     } 
                     else {
-                        Long[] values = new Long[currentTag.getCount()];
                         offset = currentTag.getOffset();
                         for(int n = 0; n < currentTag.getCount(); ++n) {
                                 System.out.printf("%s\tChild IFD %d\r\n",prefix,n);
-                                dumpIFDs(imageHeader.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4)).intValue(),String.format("%s\t",prefix));
+                                dumpIFDs(currentTag.getLong(Arrays.copyOfRange(rawDNGBytes,offset,offset + 4)).intValue(),String.format("%s\t",prefix));
                                 offset += 4;
                         }
                     }
@@ -133,14 +101,14 @@ public class DNG {
                 }
                 ptr = ptr + 12;
             } 
-            if (imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)) > 0) {
-                dumpIFDs(imageHeader.getInt(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)),String.format("%s\t",prefix));
+            if (ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)).order(imageHeader.byteOrder).getInt() > 0) {
+                dumpIFDs((int)ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)).order(imageHeader.byteOrder).getInt(),String.format("%s\t",prefix));
             }
             
 	}
 
 	DNG(byte[] rawDNGBytes) throws Exception{
         this.rawDNGBytes = rawDNGBytes;
-        imageHeader = new ImageHeader(Arrays.copyOfRange(rawDNGBytes, 0, 8));
+        imageHeader = new ImageHeader(rawDNGBytes);
 	}
 }

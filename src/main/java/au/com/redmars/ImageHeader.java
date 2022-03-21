@@ -6,10 +6,12 @@ import java.util.Arrays;
 
 public class ImageHeader {
 
-    static ByteOrder byteOrder;
+    ByteOrder byteOrder;
     Integer tiffIndentifier;
     Long ifdOffset;
-    ImageHeader (byte[] rawHeader) throws Exception {
+
+    ImageHeader (byte[] rawDNGBytes) throws Exception {
+        byte[] rawHeader = Arrays.copyOfRange(rawDNGBytes, 0, 8);
         switch (new String(new byte[]{rawHeader[0],rawHeader[1]})) {
             case "II":
                 byteOrder = ByteOrder.LITTLE_ENDIAN;
@@ -25,18 +27,7 @@ public class ImageHeader {
         if (tiffIndentifier != 42 && tiffIndentifier != 43) {
             throw new Exception(String.format("Incorrect TIFF identifier: %d",tiffIndentifier)); 
         } 
-        ifdOffset = getLong(Arrays.copyOfRange(rawHeader, 4, 8));
+        ifdOffset = ((Integer)ByteBuffer.wrap(Arrays.copyOfRange(rawHeader, 4, 8)).order(byteOrder).getInt()).longValue();
     }
-    public Long getLong(byte[] bytes) {
-        return ((Integer)ByteBuffer.wrap(bytes).order(byteOrder).getInt()).longValue();
-    }
-    public int getInt(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).order(byteOrder).getChar();
-    }
-    public float getFloat(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).order(byteOrder).getFloat();
-    }
-	public Double getDouble(byte[] bytes) {
-		return ByteBuffer.wrap(bytes).order(byteOrder).getDouble();
-	}
+    
 }
