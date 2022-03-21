@@ -2,6 +2,7 @@ package au.com.redmars;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class DNG {
 	private ImageHeader imageHeader;
@@ -21,54 +22,42 @@ public class DNG {
             for(int i = 0; i < ifdEntryCount; ++i) {
                 IFDEntry currentTag = new IFDEntry(rawDNGBytes,ptr,imageHeader.byteOrder);
                 System.out.printf("%s%s ",prefix,currentTag.toString());
-                //TODO: This is no longer required as getValues will return the value/s without need for isValue checking
-                if (currentTag.getIsValue()) {
-                    switch (currentTag.getFieldType()) {
-                        case BYTE:
-                            System.out.println((new ByteIFD(currentTag)).getValues());
-                            break;
-                        case SHORT:
-                            System.out.println((new ShortIFD(currentTag)).getValues());
-                            break;
-                        case LONG:
-                            System.out.println((new LongIFD(currentTag)).getValues());
-                            break;
-                        case UNDEFINED:
-                        case ASCII:
-                            System.out.println((new AsciiIFD(currentTag)).getValues());
-                            break;
-                        default:
-                            throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
-                    }
-                } else {
-                    switch(currentTag.getFieldType()) {
-                        case BYTE:
-                        case SHORT:
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount()), 10));
-                            break;
-                        case LONG:
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new LongIFD(currentTag)).getValues().toArray(new Long[0]),10));
-                            break;
-                        case RATIONAL:
-                        case SRATIONAL:
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new RationalIFD(currentTag)).getValues().toArray(new Double[0]),10));
-                            break;
-                        case FLOAT:
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new FloatIFD(currentTag)).getValues().toArray(new Float[0]),10));
-                            break;
-                        case DOUBLE:
-                            System.out.printf("%s\r\n",StringUtils.formatObjectArray((new DoubleIFD(currentTag)).getValues().toArray(new Double[0]),10));
-                            break;
-                        case UNDEFINED:
-                            System.out.printf("UNDEFINED DATA TAG SPECIFIC\r\n");
-                            break;
-                        case ASCII:
-                            System.out.println((new AsciiIFD(currentTag)).getValues());
-                            break;
-                        default: 
-                            throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
-                    }
+                
+                switch (currentTag.getFieldType()) {
+                    case BYTE:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new ByteIFD(currentTag).getValues(),10));
+                        break;
+                    case SHORT:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new ShortIFD(currentTag).getValues(),10));
+                        break;
+                    case LONG:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new LongIFD(currentTag).getValues(),10));
+                        break;
+                    case RATIONAL:
+                    case SRATIONAL:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new RationalIFD(currentTag).getValues(),10));
+                        break;
+                    case FLOAT:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new FloatIFD(currentTag).getValues(),10));
+                        break;
+                    case DOUBLE:
+                        System.out.printf("%s\r\n",StringUtils.formatObjectList(new DoubleIFD(currentTag).getValues(),10));
+                        break;
+                    case UNDEFINED:
+                        //TODO: Implement individual undefined per TAG specs
+                        System.out.printf("UNDEFINED DATA TAG SPECIFIC\r\n");
+                        break;    
+                    case ASCII:
+                        System.out.println(new String((new AsciiIFD(currentTag)).getValues()
+                                .stream()
+                                .map(String::valueOf)
+                                .collect(Collectors.joining())));
+                        break;
+                    default:
+                        throw new Exception(String.format("Unhandled field type in switch statement: %s",currentTag.getFieldType().name()));
                 }
+               
+                
                 if (currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD)
                 {
                     System.out.printf("%s\tExif IFD\r\n",prefix);
