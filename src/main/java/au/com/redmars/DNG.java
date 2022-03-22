@@ -8,7 +8,8 @@ public class DNG {
 	private ImageHeader imageHeader;
     private byte[] rawDNGBytes;
     
-	public void dumpIFDs(Integer offset,String prefix) throws Exception{
+    //TODO: dumpIFDs is redundant replaced with IFDStruct.toString()
+    public void dumpIFDs(Integer offset,String prefix) throws Exception{
             
 			int ptr = 0;
             if (offset == null) {
@@ -95,6 +96,30 @@ public class DNG {
             }
             
 	}
+
+    public int readIFDEntries(IFDStruct root,Integer offset) throws Exception{
+        if (offset == null)
+            offset = imageHeader.ifdOffset.intValue();
+        int ptr = offset + 2;
+        int ifdEntryCount = ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, offset, offset + 2)).order(imageHeader.byteOrder).getChar();
+        for(int i = 0; i < ifdEntryCount; ++i) {
+            IFDEntry currentTag = new IFDEntry(rawDNGBytes,ptr,imageHeader.byteOrder);
+            root.addChild(currentTag);
+            if (currentTag.getTagIdentifier() == TagIdentifier.SubIFDs) {
+                (new LongIFD(currentTag)).getValues()
+                    .forEach(x -> {
+                        root.getLast().addChild(new IFDEntry());
+                        try {
+                            readIFDEntries(root.getLast().getLast(),x.intValue());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+            }
+            ptr = ptr + 12;
+        }
+        return ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)).order(imageHeader.byteOrder).getInt();
+    }
 
 	DNG(byte[] rawDNGBytes) throws Exception{
         this.rawDNGBytes = rawDNGBytes;
