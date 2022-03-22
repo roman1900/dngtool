@@ -53,7 +53,11 @@ public class IFDEntry {
 	public String toString() {
 		return String.format("%-25s\t%-10s\tCount: %5d Value/s: ",tagIdentifier.name(),fieldType.name(),count);
 	}
+	
+	public IFDEntry() {
 
+	}
+	
 	public IFDEntry(byte[] rawDNGBytes,Integer byteLocation,ByteOrder byteOrder) throws Exception{
 		this.rawDNGBytes = rawDNGBytes;
 		this.byteOrder = byteOrder;
