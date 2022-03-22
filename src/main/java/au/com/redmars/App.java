@@ -32,8 +32,14 @@ public class App
         try {
             DNG dng = new DNG(rawDNGBytes);
             
-            dng.dumpIFDs(null,"");
             
+            Integer offset = null;
+            do {
+                IFDStruct root = new IFDStruct(new IFDEntry());
+                offset = dng.readIFDEntries(root,null);
+                System.out.println(root.toString());
+            } while (offset > 0);
+
         } catch (Exception e) {
             System.out.println();
             e.printStackTrace();
