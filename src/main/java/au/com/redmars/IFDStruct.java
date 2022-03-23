@@ -74,7 +74,7 @@ public class IFDStruct {
                         displayString+=String.format("UNDEFINED DATA TAG SPECIFIC\r\n");
                         break;    
                     case ASCII:
-						displayString+=String.format("\r\n",new String((new AsciiIFD(x.data)).getValues()
+						displayString+=String.format("%s\r\n",new String((new AsciiIFD(x.data)).getValues()
                                 .stream()
                                 .map(String::valueOf)
                                 .collect(Collectors.joining())));
