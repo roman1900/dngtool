@@ -20,5 +20,9 @@ public class ByteIFD extends IFDEntry implements IFDInterface<Byte>{
 		}
 		return values;
 	}
+	@Override
+	public String toString() {
+		return new String(value);
+	}
 	
 }
