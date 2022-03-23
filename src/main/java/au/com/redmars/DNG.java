@@ -96,6 +96,16 @@ public class DNG {
             }
             
 	}
+    public void dumpXMP(IFDStruct root) throws Exception{
+        root.getChildren().stream().filter(x -> x.getData().getTagIdentifier().name().equals("XMP"))
+        .forEach(x -> {
+            try {
+                System.out.printf("%s\r\n",(new ByteIFD(x.getData())).toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
     public int readIFDEntries(IFDStruct root,Integer offset) throws Exception{
         if (offset == null)
