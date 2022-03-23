@@ -115,7 +115,7 @@ public class DNG {
         for(int i = 0; i < ifdEntryCount; ++i) {
             IFDEntry currentTag = new IFDEntry(rawDNGBytes,ptr,imageHeader.byteOrder);
             root.addChild(currentTag);
-            if (currentTag.getTagIdentifier() == TagIdentifier.SubIFDs) {
+            if (currentTag.getTagIdentifier() == TagIdentifier.SubIFDs || currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD) {
                 (new LongIFD(currentTag)).getValues()
                     .forEach(x -> {
                         root.getLast().addChild(new IFDEntry());
@@ -126,6 +126,18 @@ public class DNG {
                         }
                     });
             }
+            // if (currentTag.getTagIdentifier() == TagIdentifier.DNGPrivateData) {
+			// 	Boolean foundnul = false;
+			// 	int o = currentTag.getOffset();
+			// 	while (!foundnul) {
+			// 		if (rawDNGBytes[o] == 0) foundnul = true;
+			// 		else o++;
+			// 	}
+			// 	System.out.printf("%d %s\r\n",currentTag.getOffset(),new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),o+1)));
+			// }
+			// if (currentTag.getTagIdentifier() == TagIdentifier.XMP) {
+			// 	System.out.printf("%s\r\n",new String(Arrays.copyOfRange(rawDNGBytes,currentTag.getOffset(),currentTag.getOffset() +  currentTag.getCount())));
+			// }
             ptr = ptr + 12;
         }
         return ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, ptr, ptr+4)).order(imageHeader.byteOrder).getInt();
