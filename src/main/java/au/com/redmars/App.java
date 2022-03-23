@@ -39,6 +39,9 @@ public class App
                 offset = dng.readIFDEntries(root,null);
                 System.out.println(root.toString());
                 root.dumpXMP();
+                root.getByTag(TagIdentifier.OriginalRawFileName).ifPresent(
+                    x -> System.out.printf("%s\r\n",new String(x.getData().value))
+                );
             } while (offset > 0);
 
         } catch (Exception e) {

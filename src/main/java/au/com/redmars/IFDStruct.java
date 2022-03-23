@@ -2,6 +2,7 @@ package au.com.redmars;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class IFDStruct {
@@ -48,7 +49,11 @@ public class IFDStruct {
 	public IFDStruct getLast() {
 		return this.children.get(this.children.size() - 1);
 	}
-
+	public Optional<IFDStruct> getByTag(TagIdentifier tagIdentifier) {
+		//TODO: This will only return direct descendants of this IFDStruct
+		// The TAG we want may be in a Sub IFD
+		return this.children.stream().filter(x -> x.data.getTagIdentifier() == tagIdentifier).findFirst();
+	}
 	public IFDEntry getData() {
 		return this.data;
 	}
