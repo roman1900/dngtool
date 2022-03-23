@@ -38,7 +38,7 @@ public class App
                 IFDStruct root = new IFDStruct(new IFDEntry());
                 offset = dng.readIFDEntries(root,null);
                 System.out.println(root.toString());
-                dng.dumpXMP(root);
+                root.dumpXMP();
             } while (offset > 0);
 
         } catch (Exception e) {

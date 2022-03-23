@@ -32,6 +32,16 @@ public class IFDStruct {
 		} 
 		return d;
 	}
+	public void dumpXMP() {
+        children.stream().filter(x -> x.getData().getTagIdentifier().name().equals("XMP"))
+        .forEach(x -> {
+            try {
+                System.out.printf("%s\r\n",(new ByteIFD(x.getData())).toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
 	public List<IFDStruct> getChildren() {
 		return children;
 	}
