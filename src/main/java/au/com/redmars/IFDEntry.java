@@ -3,6 +3,7 @@ package au.com.redmars;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.List;
 
 public class IFDEntry {
 
@@ -125,4 +126,8 @@ public class IFDEntry {
 	public int getUShort(byte[] bytes) {
 		return ByteBuffer.wrap(bytes).order(byteOrder).getChar();
 	}
+
+    public List<?> getValues() {
+        return null;
+    }
 }
