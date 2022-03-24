@@ -1,4 +1,4 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.util.HashMap;
 import java.util.Map;

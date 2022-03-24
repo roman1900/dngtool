@@ -1,10 +1,10 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UndefinedIFD extends IFDEntry implements IFDInterface<Byte>{
+public class UndefinedIFD extends IFDEntry{
 
     public UndefinedIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
 		super(rawDNGBytes, byteLocation, byteOrder);
@@ -23,6 +23,9 @@ public class UndefinedIFD extends IFDEntry implements IFDInterface<Byte>{
 	}
 	@Override
 	public String toString() {
-		return super.toString()+"UNDEFINED DATA TAG SPECIFIC";
+		return super.toString()+toValueString();
+	}
+	public String toValueString() {
+		return "UNDEFINED DATA: TAG SPECIFIC";
 	}
 }

@@ -3,6 +3,18 @@ package au.com.redmars;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import au.com.redmars.ifd.AsciiIFD;
+import au.com.redmars.ifd.ByteIFD;
+import au.com.redmars.ifd.DoubleIFD;
+import au.com.redmars.ifd.FloatIFD;
+import au.com.redmars.ifd.IFDEntry;
+import au.com.redmars.ifd.IFDStruct;
+import au.com.redmars.ifd.LongIFD;
+import au.com.redmars.ifd.RationalIFD;
+import au.com.redmars.ifd.ShortIFD;
+import au.com.redmars.ifd.TagIdentifier;
+import au.com.redmars.ifd.UndefinedIFD;
+
 public class DNG {
 	private ImageHeader imageHeader;
     private byte[] rawDNGBytes;

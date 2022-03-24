@@ -1,4 +1,4 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -128,6 +128,10 @@ public class IFDEntry {
 	}
 
     public List<?> getValues() {
+        return null;
+    }
+
+    public String toValueString() {
         return null;
     }
 }

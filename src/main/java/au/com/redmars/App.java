@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import au.com.redmars.exceptions.IncorrectFileNameException;
+import au.com.redmars.ifd.IFDEntry;
+import au.com.redmars.ifd.IFDStruct;
+import au.com.redmars.ifd.TagIdentifier;
 
 public class App 
 {
@@ -15,6 +18,7 @@ public class App
         {
             throw new IllegalArgumentException("No arguments provided");
         }
+
         String filePath = args[0];
         if (!filePath.toUpperCase().endsWith("DNG") & !filePath.toUpperCase().endsWith("TIF")) {
             throw new IncorrectFileNameException("dngtool follows strict DNG speficiation. File extension must be DNG or TIF");
@@ -40,7 +44,7 @@ public class App
                 System.out.println(root.toString());
                 root.dumpXMP();
                 root.getByTag(TagIdentifier.OriginalRawFileName).ifPresent(
-                    x -> System.out.printf("%s\r\n",new String(x.getData().value))
+                    x -> System.out.printf("%s\r\n",new String(x.getData().toValueString()))
                 );
             } while (offset > 0);
 

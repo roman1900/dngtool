@@ -1,11 +1,13 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ShortIFD extends IFDEntry implements IFDInterface<Integer>{
+import au.com.redmars.StringUtils;
+
+public class ShortIFD extends IFDEntry{
 	
 	public ShortIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
 		super(rawDNGBytes, byteLocation, byteOrder);
@@ -26,6 +28,9 @@ public class ShortIFD extends IFDEntry implements IFDInterface<Integer>{
 	}
 	@Override
 	public String toString() {
-		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+		return super.toString()+toValueString();
+	}
+	public String toValueString() {
+		return StringUtils.formatObjectList(getValues(), 10);
 	}
 }

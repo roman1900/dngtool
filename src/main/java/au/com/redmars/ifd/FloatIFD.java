@@ -1,11 +1,13 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FloatIFD extends IFDEntry implements IFDInterface<Float>{
+import au.com.redmars.StringUtils;
+
+public class FloatIFD extends IFDEntry{
 
 	public FloatIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
 		super(rawDNGBytes, byteLocation, byteOrder);
@@ -24,6 +26,9 @@ public class FloatIFD extends IFDEntry implements IFDInterface<Float>{
 	}
 	@Override
 	public String toString() {
-		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+		return super.toString()+toValueString();
+	}
+	public String toValueString() {
+		return StringUtils.formatObjectList(getValues(), 10);
 	}
 }

@@ -1,4 +1,4 @@
-package au.com.redmars;
+package au.com.redmars.ifd;
 
 import java.util.ArrayList;
 import java.util.List;
