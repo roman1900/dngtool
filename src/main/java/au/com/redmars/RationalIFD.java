@@ -26,5 +26,8 @@ public class RationalIFD extends IFDEntry implements IFDInterface<Double>{
 		} 
 		return result;
 	}
-	
+	@Override
+	public String toString() {
+		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+	}
 }

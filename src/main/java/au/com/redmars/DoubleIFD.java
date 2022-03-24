@@ -22,5 +22,9 @@ public class DoubleIFD extends IFDEntry implements IFDInterface<Double>{
 		}
 		return values;
 	}
+	@Override
+	public String toString() {
+		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+	}
 	
 }

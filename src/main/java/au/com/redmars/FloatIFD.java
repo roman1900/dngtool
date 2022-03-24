@@ -22,5 +22,8 @@ public class FloatIFD extends IFDEntry implements IFDInterface<Float>{
 		}
 		return values;
 	}
-	
+	@Override
+	public String toString() {
+		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+	}
 }

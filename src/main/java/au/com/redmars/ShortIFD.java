@@ -24,5 +24,8 @@ public class ShortIFD extends IFDEntry implements IFDInterface<Integer>{
 		}
 		return values;
 	}
-	
+	@Override
+	public String toString() {
+		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+	}
 }

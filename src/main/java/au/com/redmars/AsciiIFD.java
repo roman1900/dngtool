@@ -3,6 +3,7 @@ package au.com.redmars;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AsciiIFD extends IFDEntry implements IFDInterface<Character>{
 
@@ -21,5 +22,11 @@ public class AsciiIFD extends IFDEntry implements IFDInterface<Character>{
 		}
 		return values;
 	}
-	
+	@Override
+	public String toString() {
+		return super.toString()+new String(this.getValues()
+		                    .stream()
+		                    .map(String::valueOf)
+		                    .collect(Collectors.joining()));
+	}
 }

@@ -21,6 +21,9 @@ public class LongIFD extends IFDEntry implements IFDInterface<Long>{
 		}
 		return values;
 	}
-
+	@Override
+	public String toString() {
+		return super.toString()+StringUtils.formatObjectList(getValues(), 10);
+	}
 	
 }
