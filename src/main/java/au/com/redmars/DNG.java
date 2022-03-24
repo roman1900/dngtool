@@ -15,7 +15,38 @@ public class DNG {
         int ifdEntryCount = ByteBuffer.wrap(Arrays.copyOfRange(rawDNGBytes, offset, offset + 2)).order(imageHeader.byteOrder).getChar();
         for(int i = 0; i < ifdEntryCount; ++i) {
             IFDEntry currentTag = new IFDEntry(rawDNGBytes,ptr,imageHeader.byteOrder);
-            root.addChild(currentTag);
+            switch (currentTag.getFieldType()) {
+                case ASCII:
+                    root.addChild(new AsciiIFD(currentTag));
+                    break;
+                case UNDEFINED:
+                    root.addChild(new UndefinedIFD(currentTag));
+                    break;
+                case SBYTE:
+                case BYTE:
+                    root.addChild(new ByteIFD(currentTag));
+                    break;
+                case DOUBLE:
+                    root.addChild(new DoubleIFD(currentTag));
+                    break;
+                case FLOAT:
+                    root.addChild(new FloatIFD(currentTag));
+                    break;
+                case SLONG:
+                case LONG:
+                    root.addChild(new LongIFD(currentTag));
+                    break;
+                case SRATIONAL:
+                case RATIONAL:
+                    root.addChild(new RationalIFD(currentTag));
+                    break;
+                case SSHORT:
+                case SHORT:
+                    root.addChild(new ShortIFD(currentTag));
+                    break;
+                default:
+                    throw new Exception(String.format("Missing fieldType in switch statement encountered: %d",currentTag.getFieldType()));
+            }
             if (currentTag.getTagIdentifier() == TagIdentifier.SubIFDs || currentTag.getTagIdentifier() == TagIdentifier.Exif_IFD) {
                 (new LongIFD(currentTag)).getValues()
                     .forEach(x -> {
