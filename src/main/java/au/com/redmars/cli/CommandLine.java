@@ -20,10 +20,13 @@ public class CommandLine {
                                 --i;
                             }
                         } else {
-                            //TODO: Save Arguments to command
-                            // Iterate argCount times to save values
-                            // If isRequired expect all argCount otherwise allow
-                            // 1 to argCount values
+                            //TODO: This does not respect requiresArgs
+                            int c = 0;
+                            while (!args[i+c].startsWith("-") && c < command.get().argCount) {
+                                command.get().values.add(args[i+c+1]);
+                                ++c;
+                            }
+                            i = i + c;
                         }
                     }
                 } else {

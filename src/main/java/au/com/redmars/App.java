@@ -52,9 +52,13 @@ public class App
 
     public static void main( String[] args ) 
     {
-        Command command = new Command("r","Create a report");
         Commands commands = new Commands();
+        Command command = new Command("r","Recurse subdirectories requires -d");
         commands.addCommand(command);
+        command = new Command("d","Process all files in directory",true);
+        commands.addCommand(command);
+        
+        
         try {
             CommandLine.parseCommandLine(commands, args);
         }
