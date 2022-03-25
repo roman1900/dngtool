@@ -4,6 +4,10 @@ import java.util.List;
 
 public class Command {
     String          description;
+<<<<<<< HEAD
+=======
+    String          name;
+>>>>>>> 74c3347df4ef3afcf87bb204dfe5d90ab8299e4f
     String          identifier;
     Boolean         requiresArg;
     Boolean         hasArgs;
@@ -11,14 +15,24 @@ public class Command {
     int             argCount;
     List<String>    values;        
 
+<<<<<<< HEAD
     public Command(String identifier, String description) {
         this.identifier = identifier;
+=======
+    Command(String name, String description) {
+        this.name = name;
+>>>>>>> 74c3347df4ef3afcf87bb204dfe5d90ab8299e4f
         this.description = description;
         this.requiresArg = false;
     }
 
+<<<<<<< HEAD
     public Command(String identifier, String description, Boolean requiresArg) {
         this.identifier = identifier;
+=======
+    Command(String name, String description, Boolean requiresArg) {
+        this.name = name;
+>>>>>>> 74c3347df4ef3afcf87bb204dfe5d90ab8299e4f
         this.description = description;
         this.requiresArg = requiresArg;
     }
