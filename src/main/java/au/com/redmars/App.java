@@ -3,24 +3,20 @@ package au.com.redmars;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
-
+import java.text.ParseException;
+import java.util.List;
+import au.com.redmars.cli.Command;
+import au.com.redmars.cli.CommandLine;
+import au.com.redmars.cli.Commands;
 import au.com.redmars.exceptions.IncorrectFileNameException;
 import au.com.redmars.ifd.IFDEntry;
 import au.com.redmars.ifd.IFDStruct;
 import au.com.redmars.ifd.TagIdentifier;
 
 public class App 
-{
-    public static void main( String[] args ) throws IncorrectFileNameException,IllegalArgumentException
-    {
-        if (Objects.isNull(args) || args.length <=0)
-        {
-            throw new IllegalArgumentException("No arguments provided");
-        }
-
-        String filePath = args[0];
-        if (!filePath.toUpperCase().endsWith("DNG") & !filePath.toUpperCase().endsWith("TIF")) {
+{ 
+    public static void doFile(String filePath) throws IncorrectFileNameException {
+        if (!DNG.isDNG(filePath)) {
             throw new IncorrectFileNameException("dngtool follows strict DNG speficiation. File extension must be DNG or TIF");
         }
         byte[] rawDNGBytes = null;
@@ -52,5 +48,32 @@ public class App
             System.out.println();
             e.printStackTrace();
         }
+    }
+
+    public static void main( String[] args ) 
+    {
+        Command command = new Command("r","Create a report");
+        Commands commands = new Commands();
+        commands.addCommand(command);
+        try {
+            CommandLine.parseCommandLine(commands, args);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+        List<String> files = commands.getNonCommandArgs();
+
+        if (files.size() < 1)
+        {
+            throw new IllegalArgumentException("No arguments provided");
+        }
+        
+        files.forEach(f -> {
+            try {
+                doFile(f);
+            } catch (IncorrectFileNameException i) {
+                i.printStackTrace();
+            }
+        });
     }
 }
