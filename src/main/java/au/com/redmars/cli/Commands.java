@@ -18,8 +18,13 @@ public class Commands {
         commands.add(command);
     }
 
-    public Optional<Command> getCommand(String identifier) {
-        return commands.stream().filter(c -> c.identifier.equals(identifier)).findFirst();
+    public Command getCommand(String identifier) {
+        Optional<Command> comm = commands.stream().filter(c -> c.identifier.equals(identifier)).findFirst();
+        if (comm.isPresent()) {
+            return comm.get();
+        }
+        else return null;
+
     }
 
     public List<Command> getCommands() {
