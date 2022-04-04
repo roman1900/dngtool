@@ -3,8 +3,13 @@ package au.com.redmars;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Stream;
+
 import au.com.redmars.cli.Command;
 import au.com.redmars.cli.CommandLine;
 import au.com.redmars.cli.Commands;
@@ -50,12 +55,24 @@ public class App
         }
     }
 
+    public static void doDirectory(String directory) {
+        try (Stream<Path> walk = Files.walk(Paths.get(directory))) {
+            walk.filter(Files::isRegularFile)
+                .forEach(f -> {try {doFile(f.toString());} catch (IncorrectFileNameException e) {e.printStackTrace();}});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void main( String[] args ) 
     {
         Commands commands = new Commands();
         Command command = new Command("r","Recurse subdirectories requires -d");
         commands.addCommand(command);
         command = new Command("d","Process all files in directory",true);
+        command.setArgs(1,true);
+        
+        commands.addCommand(command);
+        command = new Command("m","Move files to specified directory");
         commands.addCommand(command);
         
         
@@ -64,6 +81,19 @@ public class App
         }
         catch (ParseException e) {
             e.printStackTrace();
+        }
+
+        if (commands.getCommand("m").getIsSet()){
+
+        }
+        if (commands.getCommand("d").getIsSet()){
+
+            commands.getCommand("d").getValues().stream().forEach(d -> doDirectory(d));
+
+            
+
+            
+
         }
         List<String> files = commands.getNonCommandArgs();
 
