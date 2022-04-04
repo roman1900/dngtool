@@ -30,7 +30,7 @@ public class CommandLine {
                                 command.values.add(args[i+c]);
                                 ++c;
                             }
-                            i = i + c;
+                            i = i + c - 1;
                         }
                     }
                 } else {
