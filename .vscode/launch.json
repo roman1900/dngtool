@@ -32,7 +32,7 @@
             "request": "launch",
             "mainClass": "au.com.redmars.App",
             "projectName": "dngtool",
-            "args": "-d \\\\NAS\\Multimedia\\Photos\\dng_recovery"
+            "args": "-d \\\\NAS\\Multimedia\\Photos\\dng_recovery -r"
         }
     ]
 }
