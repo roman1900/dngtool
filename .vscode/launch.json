@@ -25,6 +25,14 @@
             "mainClass": "au.com.redmars.App",
             "projectName": "dngtool",
             "args": "f10400301056.dng"
+        },
+        {
+            "type": "java",
+            "name": "Debug with directory path",
+            "request": "launch",
+            "mainClass": "au.com.redmars.App",
+            "projectName": "dngtool",
+            "args": "-d \\\\NAS\\Multimedia\\Photos\\dng_recovery"
         }
     ]
 }
