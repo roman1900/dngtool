@@ -20,7 +20,7 @@ import au.com.redmars.ifd.TagIdentifier;
 
 public class App 
 { 
-    public static void doFile(String filePath) throws IncorrectFileNameException {
+    public static void doFile(String filePath,Boolean report) throws IncorrectFileNameException {
         if (!DNG.isDNG(filePath)) {
             throw new IncorrectFileNameException("dngtool follows strict DNG speficiation. File extension must be DNG or TIF");
         }
@@ -30,9 +30,17 @@ public class App
             rawDNGBytes = dngStream.readAllBytes();
             dngStream.close();
         } catch (IOException e) {
-            System.out.printf("Unable to read file %s\r\n",filePath);
+            if (report) {
+                System.out.printf("%s - cannot read file\r\n",filePath);
+            } else {
+                System.out.printf("Unable to read file %s\r\n",filePath);
+            }
         } catch (Exception e) {
-            System.out.printf("%s\r\n",e.getMessage());
+            if (report) {
+                System.out.printf("%s - cannot read file\r\n",filePath);
+            } else {
+                System.out.printf("%s\r\n",e.getMessage());
+            }
         }
         try {
             DNG dng = new DNG(rawDNGBytes);
@@ -43,10 +51,14 @@ public class App
                 IFDStruct root = new IFDStruct(new IFDEntry());
                 offset = dng.readIFDEntries(root,null);
                 System.out.println(root.toString());
-                root.dumpXMP();
-                root.getByTag(TagIdentifier.OriginalRawFileName).ifPresent(
-                    x -> System.out.printf("%s\r\n",new String(x.getData().toValueString()))
-                );
+                if (report) {
+                    root.getByTag(TagIdentifier.OriginalRawFileName).ifPresent(
+                    x -> System.out.printf("%s - %s\r\n",new String(x.getData().toValueString()).replace(".CR2",".DNG"))
+                    );
+                } 
+                else {
+                    root.dumpXMP(); 
+                }
             } while (offset > 0);
 
         } catch (Exception e) {
@@ -55,16 +67,17 @@ public class App
         }
     }
 
-    public static void doDirectory(String directory) {
+    public static void doDirectory(String directory,Boolean report) {
         try (Stream<Path> walk = Files.walk(Paths.get(directory))) {
             walk.filter(Files::isRegularFile)
-                .forEach(f -> {try {doFile(f.toString());} catch (IncorrectFileNameException e) {e.printStackTrace();}});
+                .forEach(f -> {try {doFile(f.toString(),report);} catch (IncorrectFileNameException e) {e.printStackTrace();}});
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     public static void main( String[] args ) 
     {
+        final Boolean report;
         Commands commands = new Commands();
         Command command = new Command("r","Recurse subdirectories requires -d");
         commands.addCommand(command);
@@ -74,7 +87,7 @@ public class App
         commands.addCommand(command);
         command = new Command("m","Move files to specified directory");
         commands.addCommand(command);
-        
+        command = new Command("r", "Generate a report");
         
         try {
             CommandLine.parseCommandLine(commands, args);
@@ -82,13 +95,13 @@ public class App
         catch (ParseException e) {
             e.printStackTrace();
         }
-
+        report = commands.getCommand("r").getIsSet();
         if (commands.getCommand("m").getIsSet()){
 
         }
         if (commands.getCommand("d").getIsSet()){
-
-            commands.getCommand("d").getValues().stream().forEach(d -> doDirectory(d));
+            
+            commands.getCommand("d").getValues().stream().forEach(d -> doDirectory(d,report));
 
             
 
@@ -104,7 +117,7 @@ public class App
         
         files.forEach(f -> {
             try {
-                doFile(f);
+                doFile(f,false);
             } catch (IncorrectFileNameException i) {
                 i.printStackTrace();
             }
