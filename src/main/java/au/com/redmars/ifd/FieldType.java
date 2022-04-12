@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum FieldType {
+    UNKNOWN(0),
     BYTE(1),
     ASCII(2),
     SHORT(3),
