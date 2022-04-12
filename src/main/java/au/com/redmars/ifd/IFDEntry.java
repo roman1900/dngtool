@@ -5,6 +5,9 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 
+import au.com.redmars.App;
+import au.com.redmars.StringUtils;
+
 public class IFDEntry {
 
 	private TagIdentifier tagIdentifier;
@@ -12,6 +15,7 @@ public class IFDEntry {
 	protected ByteOrder byteOrder;
 	protected Integer	count;
 	protected Integer byteSize;
+	protected Integer makeOffset;
 	private Boolean isValue;
 	protected Integer	offset;
 	protected byte[]	value;
@@ -59,24 +63,33 @@ public class IFDEntry {
 
 	}
 	
-	public IFDEntry(byte[] rawDNGBytes,Integer byteLocation,ByteOrder byteOrder) throws Exception{
+	public IFDEntry(byte[] rawDNGBytes,Integer byteLocation,ByteOrder byteOrder,Integer makeOffset) throws Exception{
 		this.rawDNGBytes = rawDNGBytes;
 		this.byteOrder = byteOrder;
 		this.byteLocation = byteLocation;
+		this.makeOffset = makeOffset;
 		byte[] rawTag = Arrays.copyOfRange(rawDNGBytes, byteLocation, byteLocation+12);
-		int tag = getInt(Arrays.copyOfRange(rawTag, 0, 2));
-        if(TagIdentifier.valueOfTag(tag)!=null)
-            tagIdentifier = TagIdentifier.valueOfTag(tag);
-        else throw new Exception(String.format("Unknown TAG encountered: %d",tag));
-
+		int tag = getInt(Arrays.copyOfRange(rawTag, 0, 2)) + makeOffset;
+		//invalid tag return an empty entry
+		if (tag - makeOffset == 0) return;
+		if(TagIdentifier.valueOfTag(tag)!=null)
+            tagIdentifier = TagIdentifier.valueOfTag(tag); 
+        else {
+			if (App.verbose) System.out.printf("Invalid TAG:%d (%<x) %s\r\n",tag,StringUtils.formatObjectArray(rawTag, 12));
+			return;
+			//throw new Exception(String.format("Unknown TAG encountered: %d (%<x) at file byte offset %x",tag,byteLocation));
+		}
 		int type = getInt(Arrays.copyOfRange(rawTag, 2 , 4));
         if(FieldType.valueOfTag(type)!=null)
 			fieldType = FieldType.valueOfTag(type);
-        else throw new Exception(String.format("Unknown Type encountered: %d",type));
-
+        else {
+			
+			throw new Exception(String.format("Unknown Type encountered: %d for TAG %d (%<x) at file byte offset %x",type,tag,byteLocation));
+		}
 		count = getLong(Arrays.copyOfRange(rawTag, 4 , 8)).intValue();
 
 		switch (fieldType) {
+			case UNKNOWN:
 			case BYTE:
 			case ASCII:
 			case SBYTE:
@@ -98,7 +111,7 @@ public class IFDEntry {
 				byteSize = 8;
 				break;
 			default:
-				throw new Exception(String.format("Missing fieldType in switch statement encountered: %d",fieldType));
+				throw new Exception(String.format("Missing fieldType in switch statement encountered: %d",fieldType.value));
 		}
 		isValue = (count * byteSize) <= 4;
 

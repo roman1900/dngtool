@@ -9,11 +9,11 @@ import au.com.redmars.StringUtils;
 
 public class LongIFD extends IFDEntry{
 
-	public LongIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
-		super(rawDNGBytes, byteLocation, byteOrder);
+	public LongIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder, Integer makeOffset) throws Exception {
+		super(rawDNGBytes, byteLocation, byteOrder, makeOffset);
 	}
 	public LongIFD(IFDEntry ifdEntry) throws Exception {
-		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder);
+		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder, ifdEntry.makeOffset);
 	}
 	@Override
 	public List<Long> getValues() {

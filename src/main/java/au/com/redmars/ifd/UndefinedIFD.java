@@ -6,12 +6,12 @@ import java.util.List;
 
 public class UndefinedIFD extends IFDEntry{
 
-    public UndefinedIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
-		super(rawDNGBytes, byteLocation, byteOrder);
+    public UndefinedIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder, Integer makeOffset) throws Exception {
+		super(rawDNGBytes, byteLocation, byteOrder, makeOffset);
 		
 	}
 	public UndefinedIFD(IFDEntry ifdEntry) throws Exception {
-		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder);
+		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder, ifdEntry.makeOffset);
 	}
 	@Override
 	public List<Byte> getValues() {

@@ -9,12 +9,12 @@ import au.com.redmars.StringUtils;
 
 public class RationalIFD extends IFDEntry{
 
-	public RationalIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
-		super(rawDNGBytes, byteLocation, byteOrder);
+	public RationalIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder, Integer makeOffset) throws Exception {
+		super(rawDNGBytes, byteLocation, byteOrder, makeOffset);
 		
 	}
 	public RationalIFD(IFDEntry ifdEntry) throws Exception {
-		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder);
+		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder, ifdEntry.makeOffset);
 	}
 	@Override
 	public List<Double> getValues() {

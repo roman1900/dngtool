@@ -9,13 +9,13 @@ import au.com.redmars.StringUtils;
 
 public class ShortIFD extends IFDEntry{
 	
-	public ShortIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
-		super(rawDNGBytes, byteLocation, byteOrder);
+	public ShortIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder, Integer makeOffset) throws Exception {
+		super(rawDNGBytes, byteLocation, byteOrder, makeOffset);
 		
 	}
 	
 	public ShortIFD(IFDEntry ifdEntry) throws Exception {
-		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder);
+		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder, ifdEntry.makeOffset);
 	}
 
 	@Override

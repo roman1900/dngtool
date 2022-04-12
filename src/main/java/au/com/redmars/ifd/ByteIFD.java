@@ -8,11 +8,11 @@ import au.com.redmars.StringUtils;
 
 public class ByteIFD extends IFDEntry{
 
-	public ByteIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder) throws Exception {
-		super(rawDNGBytes, byteLocation, byteOrder);
+	public ByteIFD(byte[] rawDNGBytes, Integer byteLocation, ByteOrder byteOrder, Integer makeOffset) throws Exception {
+		super(rawDNGBytes, byteLocation, byteOrder, makeOffset);
 	}
 	public ByteIFD(IFDEntry ifdEntry) throws Exception {
-		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder);
+		super(ifdEntry.rawDNGBytes, ifdEntry.byteLocation, ifdEntry.byteOrder, ifdEntry.makeOffset);
 	}
 	@Override
 	public List<Byte> getValues() {
