@@ -1,8 +1,10 @@
 package au.com.redmars;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,9 +22,15 @@ import au.com.redmars.ifd.TagIdentifier;
 
 public class App 
 { 
+    public static Boolean verbose = false;
+    public static PrintStream out;
+    private static DNG dng;
+    private static IFDStruct root;
+    private static String path;
     public static void doFile(String filePath,Boolean report) throws IncorrectFileNameException {
+
         if (!DNG.isDNG(filePath)) {
-            throw new IncorrectFileNameException("dngtool follows strict DNG speficiation. File extension must be DNG or TIF");
+            throw new IncorrectFileNameException("dngtool follows strict DNG specification. File extension must be DNG or TIF");
         }
         byte[] rawDNGBytes = null;
         try {
@@ -30,38 +38,50 @@ public class App
             rawDNGBytes = dngStream.readAllBytes();
             dngStream.close();
         } catch (IOException e) {
-            if (report) {
-                System.out.printf("%s - cannot read file\r\n",filePath);
-            } else {
-                System.out.printf("Unable to read file %s\r\n",filePath);
+            if (verbose) {
+               System.out.printf("%sUnable to read file %s\r\n",StringUtils.verboseDateTime(),filePath);
             }
         } catch (Exception e) {
-            if (report) {
-                System.out.printf("%s - cannot read file\r\n",filePath);
-            } else {
-                System.out.printf("%s\r\n",e.getMessage());
+            if (verbose) {
+                System.out.printf("%sCannot read file %s\r\n",StringUtils.verboseDateTime(),filePath);
             }
         }
+        if (verbose) System.out.printf("%sReading %s\r\n",StringUtils.verboseDateTime(),filePath);
+        
         try {
-            DNG dng = new DNG(rawDNGBytes);
+            dng = new DNG(rawDNGBytes);
             
             
             Integer offset = null;
             do {
-                IFDStruct root = new IFDStruct(new IFDEntry());
-                offset = dng.readIFDEntries(root,null);
-                System.out.println(root.toString());
+                root = new IFDStruct(new IFDEntry());
+                offset = dng.readIFDEntries(root,offset,0);
                 if (report) {
-                    root.getByTag(TagIdentifier.OriginalRawFileName).ifPresent(
-                    x -> System.out.printf("%s - %s\r\n",new String(x.getData().toValueString()).replace(".CR2",".DNG"))
+                    path = filePath.replace(Path.of(filePath).getFileName().toString(),"");
+                    if (root.getByTag(TagIdentifier.DateTimeOriginal).isPresent()) {
+                        path = path + root.getByTag(TagIdentifier.DateTimeOriginal).get().getData().toValueString().substring(0, 
+                        root.getByTag(TagIdentifier.DateTimeOriginal).get().getData().toValueString().indexOf(":")) +"\\";
+                    }
+                    root.getByTag(TagIdentifier.OriginalRawFileName).ifPresentOrElse(
+                    x -> out.printf("cp %s %s\r\n",filePath,path + new String(x.getData().toValueString()).replace(".CR2",".DNG").replace("\0","")),
+                    () -> root.getByTag(TagIdentifier.CanonFileNumber).ifPresentOrElse(
+                        x -> out.printf("cp %s %s\r\n",filePath,new String(x.getData().toValueString())),
+                        () -> out.printf("cp %s %s\r\n",filePath,path+Path.of(filePath).getFileName().toString()))
+                    
+                    
                     );
+
                 } 
                 else {
                     root.dumpXMP(); 
                 }
             } while (offset > 0);
-
+            dng = null;
+            root = null;
+            System.gc();
         } catch (Exception e) {
+            dng = null;
+            root = null;
             System.out.println();
             e.printStackTrace();
         }
@@ -81,21 +101,37 @@ public class App
         Commands commands = new Commands();
         Command command = new Command("r","Recurse subdirectories requires -d");
         commands.addCommand(command);
-        command = new Command("d","Process all files in directory",true);
+        command = new Command("d","Process all files in directory");
         command.setArgs(1,true);
         
         commands.addCommand(command);
         command = new Command("m","Move files to specified directory");
         commands.addCommand(command);
-        command = new Command("r", "Generate a report");
-        
+        command = new Command("c", "Generate a copy report");
+        command.setArgs(1,false);
+        commands.addCommand(command);
+        command = new Command("v", "Verbose output");
+        commands.addCommand(command);
         try {
             CommandLine.parseCommandLine(commands, args);
         }
         catch (ParseException e) {
             e.printStackTrace();
         }
-        report = commands.getCommand("r").getIsSet();
+        verbose = commands.getCommand("v").getIsSet();
+        report = commands.getCommand("c").getIsSet();
+        if (report) {
+            if (commands.getCommand("c").getValues().size() == 0) {
+                out = new PrintStream(System.out);
+            } else {
+                try {
+                    out = new PrintStream(commands.getCommand("c").getValues().get(0));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        }
         if (commands.getCommand("m").getIsSet()){
 
         }
@@ -122,5 +158,9 @@ public class App
                 i.printStackTrace();
             }
         });
+        if (report) {
+            out.flush();
+            out.close();
+        }
     }
 }
