@@ -1,5 +1,6 @@
 package au.com.redmars;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,5 +47,8 @@ public class StringUtils {
         else {
             return Arrays.toString(values);
         }
+    }
+    public static String verboseDateTime() {
+        return String.format("[%tFT%<tT]\t",LocalDateTime.now());
     }
 }
